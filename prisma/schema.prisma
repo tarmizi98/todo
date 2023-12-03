@@ -1,0 +1,52 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum status {
+  ONPROGRESS
+  DONE
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  name      String
+  password  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  categories Categories[]
+  todos      Todos[]
+}
+
+model Categories {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  name      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user      User     @relation(fields: [userId], references: [id])
+  todos     Todos[]
+
+}
+
+model Todos {
+  id          Int        @id @default(autoincrement())
+  userId      Int
+  categoriesId  Int
+  title       String
+  description String
+  dueDate     DateTime
+  status      status
+  isImportant Boolean @default(false)
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  user        User       @relation(fields: [userId], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  categories  Categories @relation(fields: [categoriesId], references: [id], onUpdate: Cascade, onDelete: Cascade)
+}
